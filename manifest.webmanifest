@@ -1,0 +1,13 @@
+{
+  "name": "Suivi matériel RBF",
+  "short_name": "Matériel RBF",
+  "description": "Gestion du matériel entre le dépôt et les chantiers",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f6f8",
+  "theme_color": "#17232d",
+  "lang": "fr",
+  "icons": []
+}
+

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#17232d" />
+    <meta name="description" content="Gestion du matériel entre le dépôt et les chantiers Rosset Boulon et Fils" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <title>Suivi matériel RBF</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="toast" class="toast" aria-live="polite"></div>
+
+    <section id="configuration-screen" class="center-screen hidden">
+      <div class="message-card">
+        <div class="rbf-badge large">RBF</div>
+        <h1>Configuration Supabase requise</h1>
+        <p>Ouvre <code>config.js</code> et remplace les deux valeurs par le Project URL et la Publishable key de ton projet Supabase.</p>
+      </div>
+    </section>
+
+    <section id="loading-screen" class="center-screen">
+      <div class="loader"></div>
+      <p>Chargement…</p>
+    </section>
+
+    <section id="login-screen" class="center-screen hidden">
+      <form id="login-form" class="login-card">
+        <div class="brand login-brand"><div class="rbf-badge">RBF</div><div><strong>Rosset Boulon</strong><small>&amp; Fils</small></div></div>
+        <span class="eyebrow">Espace sécurisé</span>
+        <h1>Suivi du matériel</h1>
+        <label>Adresse e-mail<input id="login-email" type="email" autocomplete="username" required /></label>
+        <label>Mot de passe<input id="login-password" type="password" autocomplete="current-password" required /></label>
+        <button class="button primary wide" type="submit">Se connecter</button>
+        <p>Le compte doit d’abord être créé dans Supabase → Authentication → Users.</p>
+      </form>
+    </section>
+
+    <div id="application" class="app-shell hidden">
+      <aside class="sidebar">
+        <div class="brand"><div class="rbf-badge">RBF</div><div><strong>Rosset Boulon</strong><small>&amp; Fils</small></div></div>
+        <nav>
+          <button class="nav-button active" data-view="dashboard"><b>▦</b><span>Vue d’ensemble</span></button>
+          <button class="nav-button" data-view="inventory"><b>☷</b><span>Inventaire</span></button>
+          <button class="nav-button" data-view="history"><b>↔</b><span>Mouvements</span></button>
+        </nav>
+        <div class="sidebar-bottom"><b>✓</b><span id="current-user">Connexion sécurisée</span></div>
+      </aside>
+
+      <main class="stage">
+        <header class="topbar">
+          <div><span class="eyebrow">Gestion opérationnelle</span><h1>Suivi du matériel</h1></div>
+          <div class="top-actions">
+            <button id="add-location" class="button secondary">＋ Ajouter un chantier</button>
+            <button id="add-material" class="button primary">＋ Ajouter du matériel</button>
+            <button id="logout" class="button square" title="Se déconnecter">⇥</button>
+          </div>
+        </header>
+
+        <nav class="mobile-nav">
+          <button class="active" data-view="dashboard">Vue d’ensemble</button>
+          <button data-view="inventory">Inventaire</button>
+          <button data-view="history">Mouvements</button>
+        </nav>
+
+        <section id="view-dashboard" class="page view-panel">
+          <div id="stats" class="stats"></div>
+          <article class="panel">
+            <div class="panel-title"><div><span class="eyebrow">Implantations</span><h2>Dépôt et chantiers</h2></div><button id="add-location-inline" class="text-button">＋ Ajouter</button></div>
+            <div id="location-grid" class="location-grid"></div>
+          </article>
+          <div class="dashboard-bottom">
+            <article class="panel"><div class="panel-title"><div><span class="eyebrow">Traçabilité</span><h2>Derniers mouvements</h2></div><button class="text-button" data-view="history">Tout voir</button></div><div id="recent-movements"></div></article>
+            <article class="quick-card"><span class="eyebrow">Action rapide</span><h2>Un matériel change de chantier ?</h2><p>Ouvre l’inventaire, choisis le matériel puis enregistre son transfert.</p><button class="button light" data-view="inventory">Choisir le matériel →</button></article>
+          </div>
+        </section>
+
+        <section id="view-inventory" class="page view-panel hidden">
+          <article class="panel inventory-panel">
+            <div class="panel-title"><div><span class="eyebrow">Stock centralisé</span><h2>Inventaire du matériel</h2></div><button id="add-material-inline" class="button primary">＋ Nouveau matériel</button></div>
+            <div class="filters"><label class="search">⌕<input id="search-material" placeholder="Rechercher un matériel, n° de série…" /></label><select id="filter-location"><option value="all">Tous les emplacements</option></select></div>
+            <div id="inventory-content"></div>
+          </article>
+        </section>
+
+        <section id="view-history" class="page view-panel hidden">
+          <article class="panel history-panel"><div class="panel-title"><div><span class="eyebrow">Journal complet</span><h2>Historique des mouvements</h2></div><span id="movement-count" class="count-badge"></span></div><div id="all-movements"></div></article>
+        </section>
+      </main>
+    </div>
+
+    <div id="modal-backdrop" class="modal-backdrop hidden">
+      <form id="location-modal" class="modal hidden">
+        <button type="button" class="close-modal">×</button><h2 id="location-modal-title">Ajouter un emplacement</h2><p>Crée un chantier ou organise le dépôt.</p>
+        <input id="location-id" type="hidden" />
+        <div class="form-grid">
+          <label>Type<select id="location-type"><option value="chantier">Chantier</option><option value="depot">Dépôt</option></select></label>
+          <label>Nom *<input id="location-name" required /></label>
+          <label class="full">Adresse<input id="location-address" /></label>
+          <label>Responsable<input id="location-manager" /></label>
+          <label>État<select id="location-status"><option value="active">Actif</option><option value="archive">Archivé</option></select></label>
+        </div>
+        <footer><button type="button" class="button secondary close-modal">Annuler</button><button class="button primary">Enregistrer</button></footer>
+      </form>
+
+      <form id="material-modal" class="modal hidden">
+        <button type="button" class="close-modal">×</button><h2 id="material-modal-title">Ajouter du matériel</h2><p>Renseigne sa fiche et son emplacement actuel.</p>
+        <input id="material-id" type="hidden" />
+        <div class="form-grid">
+          <label>Désignation *<input id="material-name" required /></label>
+          <label>Catégorie<select id="material-category"><option>Électroportatif</option><option>Passerelle</option><option>Levage</option><option>Outillage</option><option>Sécurité</option><option>Consommable</option><option>Autre</option></select></label>
+          <label>Emplacement *<select id="material-location" required></select></label>
+          <label>Statut<select id="material-status"><option value="disponible">Disponible</option><option value="chantier">En chantier</option><option value="reparation">En réparation</option><option value="controle">À contrôler</option></select></label>
+          <label>Quantité<input id="material-quantity" type="number" min="1" value="1" required /></label>
+          <label>Unité<input id="material-unit" value="pièce" /></label>
+          <label class="full">Numéro de série / identification<input id="material-serial" /></label>
+          <label class="full">Description<textarea id="material-description" rows="4"></textarea></label>
+        </div>
+        <footer><button type="button" class="button secondary close-modal">Annuler</button><button class="button primary">Enregistrer le matériel</button></footer>
+      </form>
+
+      <form id="transfer-modal" class="modal hidden">
+        <button type="button" class="close-modal">×</button><h2>Transférer le matériel</h2><p id="transfer-description"></p><input id="transfer-material-id" type="hidden" />
+        <div class="form-column"><label>Destination *<select id="transfer-destination" required></select></label><label>Quantité<input id="transfer-quantity" type="number" min="1" required /></label><label>Note<textarea id="transfer-note" rows="3"></textarea></label></div>
+        <footer><button type="button" class="button secondary close-modal">Annuler</button><button class="button primary">Confirmer le transfert</button></footer>
+      </form>
+
+      <form id="document-modal" class="modal hidden">
+        <button type="button" class="close-modal">×</button><h2>Ajouter une pièce jointe</h2><p id="document-description"></p><input id="document-material-id" type="hidden" />
+        <div class="form-column"><label>Type de document<select id="document-type"><option value="facture_achat">Facture d’achat</option><option value="facture_reparation">Facture de réparation</option><option value="fiche_suivi">Fiche de suivi</option><option value="autre">Autre document</option></select></label><label class="file-field">Fichier, 15 Mo maximum<input id="document-file" type="file" required /></label></div>
+        <footer><button type="button" class="button secondary close-modal">Annuler</button><button class="button primary">Ajouter le document</button></footer>
+      </form>
+    </div>
+
+    <div id="drawer-backdrop" class="drawer-backdrop hidden"><aside id="material-drawer" class="drawer"><button id="close-drawer" class="drawer-close">×</button><div id="drawer-content"></div></aside></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
