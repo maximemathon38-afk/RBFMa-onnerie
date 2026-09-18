@@ -25,18 +25,6 @@
       <p>Chargement…</p>
     </section>
 
-    <section id="login-screen" class="center-screen hidden">
-      <form id="login-form" class="login-card">
-        <div class="brand login-brand"><div class="rbf-badge">RBF</div><div><strong>Rosset Boulon</strong><small>&amp; Fils</small></div></div>
-        <span class="eyebrow">Espace sécurisé</span>
-        <h1>Suivi du matériel</h1>
-        <label>Adresse e-mail<input id="login-email" type="email" autocomplete="username" required /></label>
-        <label>Mot de passe<input id="login-password" type="password" autocomplete="current-password" required /></label>
-        <button class="button primary wide" type="submit">Se connecter</button>
-        <p>Le compte doit d’abord être créé dans Supabase → Authentication → Users.</p>
-      </form>
-    </section>
-
     <div id="application" class="app-shell hidden">
       <aside class="sidebar">
         <div class="brand"><div class="rbf-badge">RBF</div><div><strong>Rosset Boulon</strong><small>&amp; Fils</small></div></div>
@@ -45,7 +33,7 @@
           <button class="nav-button" data-view="inventory"><b>☷</b><span>Inventaire</span></button>
           <button class="nav-button" data-view="history"><b>↔</b><span>Mouvements</span></button>
         </nav>
-        <div class="sidebar-bottom"><b>✓</b><span id="current-user">Connexion sécurisée</span></div>
+        <div class="sidebar-bottom"><b>✓</b><span id="current-user">Supabase connecté<br />Accès direct</span></div>
       </aside>
 
       <main class="stage">
@@ -54,7 +42,6 @@
           <div class="top-actions">
             <button id="add-location" class="button secondary">＋ Ajouter un chantier</button>
             <button id="add-material" class="button primary">＋ Ajouter du matériel</button>
-            <button id="logout" class="button square" title="Se déconnecter">⇥</button>
           </div>
         </header>
 

@@ -7,7 +7,6 @@ const state = { locations: [], materials: [], movements: [], attachments: [], vi
 const STATUS_LABELS = { disponible: "Disponible", chantier: "En chantier", reparation: "En réparation", controle: "À contrôler" };
 const DOCUMENT_LABELS = { facture_achat: "Facture d’achat", facture_reparation: "Facture de réparation", fiche_suivi: "Fiche de suivi", autre: "Autre document" };
 let db = null;
-let currentUser = null;
 let toastTimer = null;
 
 document.addEventListener("DOMContentLoaded", initialize);
@@ -21,19 +20,15 @@ async function initialize() {
     return;
   }
 
-  db = supabase.createClient(config.SUPABASE_URL, config.SUPABASE_PUBLISHABLE_KEY, {
-    auth: { persistSession: true, autoRefreshToken: true },
-  });
+  db = supabase.createClient(config.SUPABASE_URL, config.SUPABASE_PUBLISHABLE_KEY);
   bindStaticEvents();
-  const { data } = await db.auth.getSession();
-  await applySession(data.session);
-  db.auth.onAuthStateChange((_event, session) => setTimeout(() => applySession(session), 0));
+  hide("loading-screen");
+  show("application");
+  await loadData();
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("service-worker.js").catch(() => {});
 }
 
 function bindStaticEvents() {
-  $("#login-form").addEventListener("submit", login);
-  $("#logout").addEventListener("click", () => db.auth.signOut());
   $("#add-location").addEventListener("click", () => openLocationModal());
   $("#add-location-inline").addEventListener("click", () => openLocationModal());
   $("#add-material").addEventListener("click", () => openMaterialModal());
@@ -50,35 +45,6 @@ function bindStaticEvents() {
   $("#close-drawer").addEventListener("click", closeDrawer);
   $("#drawer-backdrop").addEventListener("mousedown", (event) => { if (event.target === event.currentTarget) closeDrawer(); });
   document.addEventListener("click", handleDynamicClick);
-}
-
-async function applySession(session) {
-  hide("loading-screen");
-  if (!session) {
-    currentUser = null;
-    hide("application");
-    show("login-screen");
-    return;
-  }
-  currentUser = session.user;
-  hide("login-screen");
-  show("application");
-  $("#current-user").textContent = `Connexion sécurisée\n${currentUser.email || "Utilisateur"}`;
-  await loadData();
-}
-
-async function login(event) {
-  event.preventDefault();
-  const button = event.currentTarget.querySelector("button[type='submit']");
-  button.disabled = true;
-  button.textContent = "Connexion…";
-  const { error } = await db.auth.signInWithPassword({
-    email: $("#login-email").value.trim(),
-    password: $("#login-password").value,
-  });
-  button.disabled = false;
-  button.textContent = "Se connecter";
-  if (error) notify("Identifiants incorrects.", true);
 }
 
 async function loadData() {
@@ -280,7 +246,7 @@ async function submitMaterial(event) {
     } else {
       const result = await db.from("materials").insert(payload).select().single();
       if (result.error) throw result.error;
-      const movement = await db.from("movements").insert({ material_id: result.data.id, tracking_group_id: result.data.tracking_group_id, material_name: result.data.name, from_location_id: null, to_location_id: result.data.location_id, quantity: result.data.quantity, movement_type: "ajout", note: "Ajout du matériel à l’inventaire", actor: currentUser.email || "Utilisateur" });
+      const movement = await db.from("movements").insert({ material_id: result.data.id, tracking_group_id: result.data.tracking_group_id, material_name: result.data.name, from_location_id: null, to_location_id: result.data.location_id, quantity: result.data.quantity, movement_type: "ajout", note: "Ajout du matériel à l’inventaire", actor: "Utilisateur" });
       if (movement.error) throw movement.error;
     }
   }, id ? "Matériel modifié." : "Matériel ajouté.");

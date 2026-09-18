@@ -1,4 +1,4 @@
-const CACHE_NAME = "rbf-materiel-v1";
+const CACHE_NAME = "rbf-materiel-v2-sans-connexion";
 const APP_FILES = [
   "./",
   "./index.html",
@@ -32,4 +32,3 @@ self.addEventListener("fetch", (event) => {
       .catch(() => caches.match(event.request).then((cached) => cached || caches.match("./index.html"))),
   );
 });
-

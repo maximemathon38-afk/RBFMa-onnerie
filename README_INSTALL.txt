@@ -25,14 +25,10 @@ Il n’y a volontairement aucune image.
 5. Copie tout son contenu dans Supabase.
 6. Clique sur Run.
 
-ÉTAPE 2 — CRÉER UN UTILISATEUR
--------------------------------
-1. Dans Supabase, ouvre Authentication puis Users.
-2. Clique sur Add user puis Create new user.
-3. Entre une adresse e-mail et un mot de passe.
-4. Confirme automatiquement l’utilisateur si l’option est proposée.
+Si tu avais déjà lancé une ancienne version de supabase.sql, relance entièrement
+ce nouveau fichier : il enlève l’obligation de créer un compte ou un mot de passe.
 
-ÉTAPE 3 — RELIER L’APPLICATION À SUPABASE
+ÉTAPE 2 — RELIER L’APPLICATION À SUPABASE
 ------------------------------------------
 1. Dans Supabase, clique sur Connect.
 2. Copie Project URL.
@@ -54,7 +50,7 @@ Il n’y a volontairement aucune image.
 
 Ne mets jamais une Secret key ou la clé service_role dans config.js.
 
-ÉTAPE 4 — ACTIVER GITHUB PAGES
+ÉTAPE 3 — ACTIVER GITHUB PAGES
 -------------------------------
 1. Ouvre Settings dans ton dépôt GitHub.
 2. Clique sur Pages.
@@ -65,7 +61,7 @@ Ne mets jamais une Secret key ou la clé service_role dans config.js.
 
 UTILISATION
 -----------
-- Connexion avec l’e-mail et le mot de passe créés dans Supabase.
+- Ouverture directe sans compte et sans mot de passe.
 - Ajout et modification des chantiers et du dépôt.
 - Ajout et modification du matériel.
 - Transfert complet ou partiel entre deux emplacements.
@@ -73,3 +69,5 @@ UTILISATION
 - Ajout de factures et de fiches de suivi.
 - Utilisation sur téléphone et ordinateur.
 
+ATTENTION : comme il n’y a pas de connexion, toute personne possédant le lien
+de l’application pourra consulter et modifier l’inventaire.
